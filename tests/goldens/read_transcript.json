@@ -1,0 +1,357 @@
+{
+  "file_info": {
+    "line_count": 12,
+    "message_count": 4,
+    "role_counts": {
+      "user": 1,
+      "assistant": 2,
+      "tools": 1
+    },
+    "token_estimate": 37
+  },
+  "file_head_2": {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello, can you help me?"
+      },
+      {
+        "role": "assistant",
+        "content": "Sure! How can I help?"
+      }
+    ],
+    "text": "Human:\nHello, can you help me?\n\nAssistant:\nSure! How can I help?\n",
+    "showing": "first 2 of 4 messages"
+  },
+  "file_head_10_no_tools": {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello, can you help me?"
+      },
+      {
+        "role": "assistant",
+        "content": "Sure! How can I help?"
+      },
+      {
+        "role": "tools",
+        "content": "Read /home/user/project/main.py"
+      },
+      {
+        "role": "assistant",
+        "content": "I see the file."
+      }
+    ],
+    "text": "Human:\nHello, can you help me?\n\nAssistant:\nSure! How can I help?\n\nAssistant:\nI see the file.\n",
+    "showing": "first 4 of 4 messages"
+  },
+  "file_head_10_tools": {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello, can you help me?"
+      },
+      {
+        "role": "assistant",
+        "content": "Sure! How can I help?"
+      },
+      {
+        "role": "tools",
+        "content": "Read /home/user/project/main.py"
+      },
+      {
+        "role": "assistant",
+        "content": "I see the file."
+      }
+    ],
+    "text": "Human:\nHello, can you help me?\n\nAssistant:\nSure! How can I help?\n\n[Tool Calls]\nRead /home/user/project/main.py\n\nAssistant:\nI see the file.\n",
+    "showing": "first 4 of 4 messages"
+  },
+  "file_tail_2": {
+    "messages": [
+      {
+        "role": "tools",
+        "content": "Read /home/user/project/main.py"
+      },
+      {
+        "role": "assistant",
+        "content": "I see the file."
+      }
+    ],
+    "text": "[Tool Calls]\nRead /home/user/project/main.py\n\nAssistant:\nI see the file.\n",
+    "showing": "last 2 of 4 messages"
+  },
+  "file_tail_100": {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Hello, can you help me?"
+      },
+      {
+        "role": "assistant",
+        "content": "Sure! How can I help?"
+      },
+      {
+        "role": "tools",
+        "content": "Read /home/user/project/main.py"
+      },
+      {
+        "role": "assistant",
+        "content": "I see the file."
+      }
+    ],
+    "text": "Human:\nHello, can you help me?\n\nAssistant:\nSure! How can I help?\n\n[Tool Calls]\nRead /home/user/project/main.py\n\nAssistant:\nI see the file.\n",
+    "showing": "last 4 of 4 messages"
+  },
+  "file_lines_1_5": {
+    "lines": "1: Human:\n2: Hello, can you help me?\n3: \n4: Assistant:\n5: Sure! How can I help?",
+    "range": "1-5 of 12"
+  },
+  "file_lines_0_5": {
+    "lines": "1: Human:\n2: Hello, can you help me?\n3: \n4: Assistant:\n5: Sure! How can I help?",
+    "range": "1-5 of 12"
+  },
+  "file_lines_1_big": {
+    "lines": "1: Human:\n2: Hello, can you help me?\n3: \n4: Assistant:\n5: Sure! How can I help?\n6: \n7: [Tool Calls]\n8: Read /home/user/project/main.py\n9: \n10: Assistant:\n11: I see the file.\n12: ",
+    "range": "1-12 of 12"
+  },
+  "file_lines_none": {
+    "lines": "1: Human:\n2: Hello, can you help me?\n3: \n4: Assistant:\n5: Sure! How can I help?\n6: \n7: [Tool Calls]\n8: Read /home/user/project/main.py\n9: \n10: Assistant:\n11: I see the file.\n12: ",
+    "range": "1-12 of 12"
+  },
+  "file_lines_empty_range": {
+    "lines": "",
+    "range": "4-2 of 12"
+  },
+  "file_grep_help": {
+    "pattern": "help",
+    "matches": [
+      {
+        "line_number": 2,
+        "text": "Hello, can you help me?",
+        "context": "1: Human:\n2: Hello, can you help me?\n3: \n4: Assistant:\n5: Sure! How can I help?"
+      },
+      {
+        "line_number": 5,
+        "text": "Sure! How can I help?",
+        "context": "2: Hello, can you help me?\n3: \n4: Assistant:\n5: Sure! How can I help?\n6: \n7: [Tool Calls]\n8: Read /home/user/project/main.py"
+      }
+    ],
+    "total_matches": 2,
+    "truncated": false
+  },
+  "file_grep_ci": {
+    "pattern": "HELLO",
+    "matches": [
+      {
+        "line_number": 2,
+        "text": "Hello, can you help me?",
+        "context": "1: Human:\n2: Hello, can you help me?\n3: \n4: Assistant:\n5: Sure! How can I help?"
+      }
+    ],
+    "total_matches": 1,
+    "truncated": false
+  },
+  "file_grep_ctx0": {
+    "pattern": "Read",
+    "matches": [
+      {
+        "line_number": 8,
+        "text": "Read /home/user/project/main.py",
+        "context": "8: Read /home/user/project/main.py"
+      }
+    ],
+    "total_matches": 1,
+    "truncated": false
+  },
+  "file_grep_truncated": {
+    "pattern": "e",
+    "matches": [
+      {
+        "line_number": 2,
+        "text": "Hello, can you help me?",
+        "context": "1: Human:\n2: Hello, can you help me?\n3: \n4: Assistant:\n5: Sure! How can I help?"
+      },
+      {
+        "line_number": 5,
+        "text": "Sure! How can I help?",
+        "context": "2: Hello, can you help me?\n3: \n4: Assistant:\n5: Sure! How can I help?\n6: \n7: [Tool Calls]\n8: Read /home/user/project/main.py"
+      }
+    ],
+    "total_matches": 2,
+    "truncated": true
+  },
+  "file_grep_none": {
+    "pattern": "definitely_not_present_xyz",
+    "matches": [],
+    "total_matches": 0,
+    "truncated": false
+  },
+  "file_grep_no_pattern": {
+    "error": "pattern is required for grep mode",
+    "matches": []
+  },
+  "file_full": {
+    "transcript": "Human:\nHello, can you help me?\n\nAssistant:\nSure! How can I help?\n\n[Tool Calls]\nRead /home/user/project/main.py\n\nAssistant:\nI see the file.\n"
+  },
+  "file_full_no_tools": {
+    "transcript": "Human:\nHello, can you help me?\n\nAssistant:\nSure! How can I help?\n\nAssistant:\nI see the file.\n"
+  },
+  "file_save": {
+    "line_count": 12,
+    "token_estimate": 37,
+    "size_bytes": 139
+  },
+  "file_save_no_path": {
+    "error": "output_path is required for save mode (a relative name like \"my-export.txt\"; saved under <data_dir>/exports/)"
+  },
+  "bad_mode": {
+    "error": "Unknown mode: bogus. Valid modes: info, head, tail, lines, grep, full, save"
+  },
+  "missing_session": {
+    "error": "Session not found: does-not-exist"
+  },
+  "cached_info": {
+    "line_count": 6,
+    "message_count": 2,
+    "role_counts": {
+      "user": 1,
+      "assistant": 1
+    },
+    "token_estimate": 20,
+    "source": "cached"
+  },
+  "cached_head_2": {
+    "messages": [
+      {
+        "role": "user",
+        "content": "How do I fix the auth bug?"
+      },
+      {
+        "role": "assistant",
+        "content": "Check the redirect logic in auth.py."
+      }
+    ],
+    "text": "Human:\nHow do I fix the auth bug?\n\nAssistant:\nCheck the redirect logic in auth.py.\n",
+    "showing": "first 2 of 2 messages",
+    "source": "cached"
+  },
+  "cached_tail_1": {
+    "messages": [
+      {
+        "role": "assistant",
+        "content": "Check the redirect logic in auth.py."
+      }
+    ],
+    "text": "Assistant:\nCheck the redirect logic in auth.py.\n",
+    "showing": "last 1 of 2 messages",
+    "source": "cached"
+  },
+  "cached_lines_1_3": {
+    "lines": "1: Human:\n2: How do I fix the auth bug?\n3: ",
+    "range": "1-3 of 6",
+    "source": "cached"
+  },
+  "cached_grep": {
+    "pattern": "redirect",
+    "matches": [
+      {
+        "line_number": 5,
+        "text": "Check the redirect logic in auth.py.",
+        "context": "2: How do I fix the auth bug?\n3: \n4: Assistant:\n5: Check the redirect logic in auth.py.\n6: "
+      }
+    ],
+    "total_matches": 1,
+    "truncated": false,
+    "source": "cached"
+  },
+  "cached_full": {
+    "transcript": "Human:\nHow do I fix the auth bug?\n\nAssistant:\nCheck the redirect logic in auth.py.\n",
+    "source": "cached"
+  },
+  "cached_save": {
+    "line_count": 6,
+    "token_estimate": 20,
+    "size_bytes": 83,
+    "source": "cached"
+  },
+  "cached_tools_info": {
+    "line_count": 12,
+    "message_count": 4,
+    "role_counts": {
+      "user": 1,
+      "tools": 1,
+      "assistant": 2
+    },
+    "token_estimate": 30,
+    "source": "cached"
+  },
+  "cached_tools_head_4": {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Run the tests"
+      },
+      {
+        "role": "tools",
+        "content": "Bash: pytest -q"
+      },
+      {
+        "role": "assistant",
+        "content": "All 42 tests passed."
+      },
+      {
+        "role": "assistant",
+        "content": "Anything else?"
+      }
+    ],
+    "text": "Human:\nRun the tests\n\n[Tool Calls]\nBash: pytest -q\n\nAssistant:\nAll 42 tests passed.\n\nAssistant:\nAnything else?\n",
+    "showing": "first 4 of 4 messages",
+    "source": "cached"
+  },
+  "cached_tools_head_no_tools": {
+    "messages": [
+      {
+        "role": "user",
+        "content": "Run the tests"
+      },
+      {
+        "role": "tools",
+        "content": "Bash: pytest -q"
+      },
+      {
+        "role": "assistant",
+        "content": "All 42 tests passed."
+      },
+      {
+        "role": "assistant",
+        "content": "Anything else?"
+      }
+    ],
+    "text": "Human:\nRun the tests\n\nAssistant:\nAll 42 tests passed.\n\nAssistant:\nAnything else?\n",
+    "showing": "first 4 of 4 messages",
+    "source": "cached"
+  },
+  "cached_tools_tail_2": {
+    "messages": [
+      {
+        "role": "assistant",
+        "content": "All 42 tests passed."
+      },
+      {
+        "role": "assistant",
+        "content": "Anything else?"
+      }
+    ],
+    "text": "Assistant:\nAll 42 tests passed.\n\nAssistant:\nAnything else?\n",
+    "showing": "last 2 of 4 messages",
+    "source": "cached"
+  },
+  "no_file_no_cache": {
+    "error": "No transcript file available"
+  },
+  "_inputs": {
+    "cached_simple": "Human:\nHow do I fix the auth bug?\n\nAssistant:\nCheck the redirect logic in auth.py.\n",
+    "cached_tools": "Human:\nRun the tests\n\n[Tool Calls]\nBash: pytest -q\n\nA:\nAll 42 tests passed.\n\nAssistant:\nAnything else?\n"
+  }
+}

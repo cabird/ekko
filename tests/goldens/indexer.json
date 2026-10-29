@@ -1,0 +1,53 @@
+{
+  "rich": {
+    "jsonl": "{\"type\":\"system\",\"subtype\":\"init\",\"cwd\":\"/home/user/project\",\"gitBranch\":\"main\",\"timestamp\":\"2025-06-15T10:00:00Z\"}\n{\"type\":\"user\",\"timestamp\":\"2025-06-15T10:00:05Z\",\"message\":{\"role\":\"user\",\"content\":\"Hello, can you help me?\"}}\n{\"type\":\"assistant\",\"timestamp\":\"2025-06-15T10:00:10Z\",\"message\":{\"role\":\"assistant\",\"content\":[{\"type\":\"text\",\"text\":\"Sure! How can I help?\"},{\"type\":\"tool_use\",\"id\":\"tc_1\",\"name\":\"Read\",\"input\":{\"file_path\":\"/home/user/project/main.py\"}}]}}\nnot json\n{\"type\":\"user\",\"timestamp\":\"2025-06-15T10:00:20Z\",\"message\":{\"role\":\"user\",\"content\":[{\"type\":\"tool_result\",\"tool_use_id\":\"tc_1\",\"content\":\"print('hi')\"},{\"type\":\"text\",\"text\":\"  please continue  \"}]}}\n{\"type\":\"assistant\",\"timestamp\":\"2025-06-15T10:00:30Z\",\"message\":{\"role\":\"assistant\",\"content\":\"I see the file.\"}}\n{\"type\":\"assistant\",\"timestamp\":\"2025-06-15T10:00:35Z\",\"message\":{\"role\":\"assistant\",\"content\":[{\"type\":\"tool_use\",\"id\":\"tc_2\",\"name\":\"applyPatch\",\"input\":\"raw patch content\"}]}}\n{\"type\":\"progress\",\"timestamp\":\"2025-06-15T10:00:40Z\"}\n",
+    "tool_timeline": "Tool Calls:\nRead /home/user/project/main.py\nPatch (inline)",
+    "file_paths": [
+      [
+        "/home/user/project/main.py",
+        "read"
+      ]
+    ],
+    "event_count": 6,
+    "conversation_len": 192
+  },
+  "files": {
+    "jsonl": "{\"type\":\"system\",\"subtype\":\"init\",\"cwd\":\"/repo\",\"gitBranch\":\"main\",\"timestamp\":\"2025-06-15T10:00:00Z\"}\n{\"type\":\"user\",\"timestamp\":\"2025-06-15T10:00:01Z\",\"message\":{\"role\":\"user\",\"content\":\"go\"}}\n{\"type\":\"assistant\",\"timestamp\":\"2025-06-15T10:00:02Z\",\"message\":{\"role\":\"assistant\",\"content\":[{\"type\":\"tool_use\",\"id\":\"t1\",\"name\":\"Read\",\"input\":{\"file_path\":\"/repo/a.py\"}},{\"type\":\"tool_use\",\"id\":\"t2\",\"name\":\"Edit\",\"input\":{\"file_path\":\"/repo/a.py\",\"old_string\":\"x\",\"new_string\":\"y\"}},{\"type\":\"tool_use\",\"id\":\"t3\",\"name\":\"Write\",\"input\":{\"file_path\":\"/repo/b.py\",\"content\":\"hello\"}},{\"type\":\"tool_use\",\"id\":\"t4\",\"name\":\"Read\",\"input\":{\"file_path\":\"/repo/b.py\"}},{\"type\":\"tool_use\",\"id\":\"t5\",\"name\":\"view\",\"input\":{\"path\":\"/repo/c.txt\"}},{\"type\":\"tool_use\",\"id\":\"t6\",\"name\":\"NotebookEdit\",\"input\":{\"notebook_path\":\"/repo/n.ipynb\",\"new_source\":\"z\"}},{\"type\":\"tool_use\",\"id\":\"t7\",\"name\":\"Grep\",\"input\":{\"path\":\"/repo/d.txt\",\"pattern\":\"q\"}},{\"type\":\"tool_use\",\"id\":\"t8\",\"name\":\"Bash\",\"input\":{\"command\":\"ls\"}},{\"type\":\"tool_use\",\"id\":\"t9\",\"name\":\"Read\",\"input\":{\"file_path\":\"\"}},{\"type\":\"tool_use\",\"id\":\"t10\",\"name\":\"create\",\"input\":{\"path\":\"/repo/e.md\"}}]}}\n",
+    "tool_timeline": "Tool Calls:\nRead /repo/a.py\nEdit /repo/a.py\nWrite /repo/b.py (5)\nRead /repo/b.py\nview: /repo/c.txt\nNotebookEdit: notebook_path=/repo/n.ipynb new_source=z\nGrep \"q\" in /repo/d.txt\nBash: ls\nRead \ncreate: /repo/e.md",
+    "file_paths": [
+      [
+        "/repo/a.py",
+        "write"
+      ],
+      [
+        "/repo/b.py",
+        "write"
+      ],
+      [
+        "/repo/c.txt",
+        "read"
+      ],
+      [
+        "/repo/n.ipynb",
+        "write"
+      ],
+      [
+        "/repo/d.txt",
+        "read"
+      ],
+      [
+        "/repo/e.md",
+        "write"
+      ]
+    ],
+    "event_count": 11,
+    "conversation_len": 224
+  },
+  "notools": {
+    "jsonl": "{\"type\":\"user\",\"timestamp\":\"2025-06-15T10:00:05Z\",\"message\":{\"role\":\"user\",\"content\":\"hi\"}}\n",
+    "tool_timeline": "",
+    "file_paths": [],
+    "event_count": 1,
+    "conversation_len": 10
+  }
+}

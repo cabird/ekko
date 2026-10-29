@@ -1,0 +1,5 @@
+{"type": "system", "subtype": "init", "cwd": "/home/user/project", "gitBranch": "main", "model": "claude-sonnet-4-20250514", "sessionId": "test-session-1", "timestamp": "2025-06-15T10:00:00Z"}
+{"type": "user", "timestamp": "2025-06-15T10:00:05Z", "message": {"role": "user", "content": "Hello, can you help me?"}}
+{"type": "assistant", "timestamp": "2025-06-15T10:00:10Z", "message": {"role": "assistant", "content": [{"type": "text", "text": "Sure! How can I help?"}, {"type": "tool_use", "id": "tc_1", "name": "Read", "input": {"file_path": "/home/user/project/main.py"}}]}}
+{"type": "tool_result", "tool_use_id": "tc_1", "content": "print('hello')", "is_error": false}
+{"type": "assistant", "timestamp": "2025-06-15T10:00:30Z", "message": {"role": "assistant", "content": "I see the file."}}
