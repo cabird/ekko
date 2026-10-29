@@ -1,13 +1,28 @@
 # ekko
 
-A single-binary MCP server that gives AI coding assistants access to your past coding
-sessions. It reads the transcript directories that Claude Code, VS Code Copilot,
-GitHub Copilot CLI and OpenAI Codex already write, indexes them into SQLite, and exposes
-search, browse and Q&A tools over stdio.
+Claude Code, VS Code Copilot, GitHub Copilot CLI and OpenAI Codex all write a full
+transcript of every coding session to your disk — and then nothing ever reads them
+again. ekko is a single-binary MCP server that turns those transcripts into memory your
+assistant can actually use.
 
-It ships as a single static binary with no runtime to install: transcripts are read in
-place, everything it derives lives in one SQLite file under its own data directory, and
-the whole thing runs locally.
+It indexes every session into SQLite, then summarizes each one and builds a **context
+snapshot**: the decisions made, the commands run, the architecture touched, the files
+changed. Snapshots are what make the archive useful in practice — a new session can load
+one to pick up where an earlier session left off, or use it to decide which full
+transcript is worth reading. Summaries and snapshots are generated with an LLM, either
+through your own API key or, with no key at all, through your logged-in Claude Code CLI.
+
+Once indexed, your assistant answers things like:
+
+- "Where did we leave off yesterday?"
+- "Why did we choose X over Y?" — rationale that lives in a transcript, not a commit message
+- "We hit this error before — what fixed it?"
+- "What was that deploy command?" — including commands and code that were never committed
+
+Everything runs locally: transcripts are read in place, and everything derived lives in
+one SQLite file in ekko's own data directory. The only outbound traffic is the LLM calls
+for summaries and Q&A. A built-in browser UI (`ekko web`) gives you the same archive,
+human-side.
 
 ## Tools
 
@@ -33,7 +48,7 @@ browser UI is `ekko web` (below).
 
 ```bash
 cargo build --release       # target/release/ekko
-cargo test                  # ~500 tests, no network, no API keys needed
+cargo test                  # ~600 tests, no network, no API keys needed
 ```
 
 Rust 1.85+ (edition 2024). SQLite is bundled; TLS is rustls, so there is no OpenSSL
