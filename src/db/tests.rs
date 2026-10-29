@@ -1546,6 +1546,7 @@ fn get_all_sessions_with_transcripts_filters_and_limits() {
     let all = t.db.get_all_sessions_with_transcripts(None).unwrap();
     assert_eq!(all.len(), 5, "s6 has message_count 0");
     assert!(all.iter().all(|s| s.session_id != "s6"));
+    assert_eq!(all[0].session_id, "s1", "newest first");
     assert_eq!(
         t.db.get_all_sessions_with_transcripts(Some(2))
             .unwrap()

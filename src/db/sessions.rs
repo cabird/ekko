@@ -481,7 +481,9 @@ impl Database {
         self.query_sessions(&query, &sql_params)
     }
 
-    /// All sessions that have transcript files and actual messages.
+    /// All sessions that have transcript files and actual messages, newest
+    /// first — so `ekko index --force` and keyword indexing work on recent
+    /// sessions before old ones, and a limit takes the newest rows.
     pub fn get_all_sessions_with_transcripts(
         &self,
         limit: Option<i64>,
@@ -489,7 +491,8 @@ impl Database {
         let mut query = String::from(
             "SELECT * FROM sessions
              WHERE transcript_path != ''
-             AND message_count > 0",
+             AND message_count > 0
+             ORDER BY modified_at DESC",
         );
         let mut sql_params: Vec<SqlValue> = Vec::new();
         if let Some(l) = limit.filter(|l| *l != 0) {
