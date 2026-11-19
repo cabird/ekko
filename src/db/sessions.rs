@@ -502,11 +502,17 @@ impl Database {
         self.query_sessions(&query, &sql_params)
     }
 
-    /// Sessions that have a non-empty summary.
+    /// Sessions that have a non-empty summary, newest first.
+    ///
+    /// Callers rely on the order: `recent_activity` truncates this list to
+    /// `max_sessions` without sorting it again. Without the `ORDER BY`, SQLite
+    /// returns storage order, which is roughly the order sessions were first
+    /// indexed. A NULL `modified_at` sorts last under `DESC`.
     pub fn get_sessions_with_summaries(&self, limit: Option<i64>) -> DbResult<Vec<SessionRow>> {
         let mut query = String::from(
             "SELECT * FROM sessions
-             WHERE summary IS NOT NULL AND summary != ''",
+             WHERE summary IS NOT NULL AND summary != ''
+             ORDER BY modified_at DESC",
         );
         let mut sql_params: Vec<SqlValue> = Vec::new();
         if let Some(l) = limit.filter(|l| *l != 0) {

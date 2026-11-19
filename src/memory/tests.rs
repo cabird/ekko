@@ -516,6 +516,52 @@ fn recent_activity_respects_max_sessions() {
     assert_eq!(r["sessions"].as_array().expect("sessions").len(), 1);
 }
 
+/// Sessions come back newest first, and `max_sessions` keeps the newest ones,
+/// whatever order the rows were stored in. The rows here are inserted oldest
+/// first so that SQLite's storage order disagrees with recency (the `mem_db`
+/// fixture inserts newest first, which hid this).
+#[test]
+fn recent_activity_returns_newest_first_regardless_of_insert_order() {
+    let dir = tempfile::tempdir().expect("tempdir");
+    let db = Database::new(dir.path().join("order.db")).expect("db");
+    for (sid, days) in [("old", 20), ("mid", 10), ("new", 1), ("newer", 0)] {
+        db.upsert_session(&session(sid, sid, "/home/user/webapp", "claude_code", days, 5))
+            .expect("upsert");
+        db.update_summary(sid, sid, &format!("Summary of {sid}"))
+            .expect("summary");
+    }
+    let m = TestMem {
+        mem: EkkoMemory::new(db),
+        _dir: dir,
+    };
+
+    let ids = |r: &Value| -> Vec<String> {
+        r["sessions"]
+            .as_array()
+            .expect("sessions")
+            .iter()
+            .map(|s| s["session_id"].as_str().expect("id").to_string())
+            .collect()
+    };
+
+    let all = m
+        .recent_activity(&RecentActivityArgs {
+            days: 30,
+            ..RecentActivityArgs::default()
+        })
+        .expect("ok");
+    assert_eq!(ids(&all), ["newer", "new", "mid", "old"]);
+
+    let top2 = m
+        .recent_activity(&RecentActivityArgs {
+            days: 30,
+            max_sessions: 2,
+            ..RecentActivityArgs::default()
+        })
+        .expect("ok");
+    assert_eq!(ids(&top2), ["newer", "new"]);
+}
+
 // ---------------------------------------------------------------------------
 // search_sessions
 // ---------------------------------------------------------------------------
