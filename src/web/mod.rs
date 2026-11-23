@@ -7,7 +7,7 @@
 //! transcript route ingests a not-yet-stored session's capped events on
 //! first view (see `api_transcript`).
 //!
-//! Design: `docs/web-ui/PORT_PLAN.md`. The JSON shapes are the MCP tools'
+//! The JSON shapes are the MCP tools'
 //! (`EkkoMemory` returns them directly) wherever a tool already exists;
 //! the list and transcript routes, which have no tool counterpart in this
 //! form, carry the browser's own shapes.
@@ -138,7 +138,7 @@ impl IntoResponse for ApiError {
 }
 
 /// Run synchronous database work off the async executor. ekko's `Database`
-/// is connection-per-call and blocking (see PORT_PLAN §2), so every handler
+/// is connection-per-call and blocking, so every handler
 /// goes through here.
 async fn blocking<T, F>(f: F) -> Result<T, ApiError>
 where
@@ -265,7 +265,7 @@ async fn api_sessions(
     })))
 }
 
-/// Sidebar fields only (PORT_PLAN §4: the list endpoint must not
+/// Sidebar fields only (the list endpoint must not
 /// over-fetch). Detail comes from `/api/sessions/{id}`.
 fn list_item(row: &SessionRow) -> Value {
     json!({
@@ -535,7 +535,7 @@ pub struct AskBody {
 }
 
 /// Same result shape as the `ask_question` tool. 503 when no query backend
-/// is configured — never a success-shaped fallback (PORT_PLAN §5).
+/// is configured — never a success-shaped fallback.
 async fn api_ask(
     State(server): State<EkkoServer>,
     body: axum::body::Bytes,

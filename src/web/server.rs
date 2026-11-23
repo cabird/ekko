@@ -1,5 +1,5 @@
 //! Web server lifecycle: standalone (`ekko web`) and co-hosted (inside
-//! `ekko mcp` when `web_serve` is on — PORT_PLAN phase 4).
+//! `ekko mcp` when `web_serve` is on).
 //!
 //! Both paths funnel into [`serve_with_lease`]: bind the port, hold the
 //! [`WEB_LEASE`] with a heartbeat, serve axum, release on the way out. The

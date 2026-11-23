@@ -81,7 +81,7 @@ pub async fn run_stdio() -> Result<(), String> {
     server.indexer_status().mark_running();
     tracing::info!("Background indexing scheduled");
 
-    // Optionally co-host the web UI (PORT_PLAN phase 4): a lease-elected
+    // Optionally co-host the web UI: a lease-elected
     // side job — exactly one MCP instance serves the port at a time.
     let (web_stop_tx, web_handle) = if config.web_serve {
         let (tx, rx) = tokio::sync::watch::channel(false);
