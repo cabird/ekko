@@ -285,6 +285,8 @@ pub struct CheckInputs {
     pub prompts_missing: Vec<String>,
     pub db_path: PathBuf,
     pub db_state: DbState,
+    /// Summary-queue standing, when the database opened.
+    pub db_queue: Option<crate::db::SummaryQueueStats>,
     pub discovery: Vec<DiscoverySource>,
 }
 
@@ -488,6 +490,34 @@ or install and log in to Claude Code to use it as the backend"
             entries.push(CheckEntry::passed(format!(
                 "Database: {count} sessions indexed"
             )));
+            if let Some(q) = &inputs.db_queue {
+                if q.eligible_now > 0 {
+                    entries.push(CheckEntry::warned(
+                        format!(
+                            "Summary queue: {} session(s) eligible and waiting",
+                            q.eligible_now
+                        ),
+                        Some(
+                            "Run `ekko index` to catch up, or wait for the background loop"
+                                .to_string(),
+                        ),
+                    ));
+                } else {
+                    entries.push(CheckEntry::passed(format!(
+                        "Summary queue: empty ({} awaiting the quiet window, {} empty sessions never summarized)",
+                        q.awaiting_quiet, q.empty
+                    )));
+                }
+                match &q.last_summary_at {
+                    Some(ts) => entries.push(CheckEntry::passed(format!(
+                        "Last summary written: {ts}"
+                    ))),
+                    None => entries.push(CheckEntry::warned(
+                        "No summary has ever been written".to_string(),
+                        None,
+                    )),
+                }
+            }
         }
         DbState::Broken(e) => {
             entries.push(CheckEntry::warned(
@@ -545,7 +575,7 @@ or install and log in to Claude Code to use it as the backend"
     }
     if total_sessions > 0 {
         entries.push(CheckEntry::passed(format!(
-            "Total: {total_sessions} sessions discoverable"
+            "Total: {total_sessions} transcript files discoverable (includes non-interactive and still-active files that are never indexed)"
         )));
     } else {
         entries.push(CheckEntry::warned(
@@ -658,8 +688,15 @@ pub async fn probe(config: &Config) -> CheckInputs {
         Ok(dir) => dir.join("sessions.db"),
         Err(_) => PathBuf::from("sessions.db"),
     };
+    let mut db_queue = None;
     let db_state = if db_path.exists() {
-        match crate::db::Database::new(&db_path).and_then(|db| db.get_stats()) {
+        match crate::db::Database::new(&db_path).and_then(|db| {
+            let stats = db.get_stats()?;
+            db_queue = db
+                .get_summary_queue_stats(crate::background::MIN_AGE_HOURS)
+                .ok();
+            Ok(stats)
+        }) {
             // Report the raw row count: total_sessions filters to
             // message_count > 0, total_indexed does not.
             Ok(stats) => DbState::Ok(stats.total_indexed),
@@ -690,6 +727,7 @@ pub async fn probe(config: &Config) -> CheckInputs {
         prompts_missing,
         db_path,
         db_state,
+        db_queue,
         discovery,
     }
 }
@@ -859,6 +897,13 @@ mod tests {
             prompts_missing: Vec::new(),
             db_path: dir.join("sessions.db"),
             db_state: DbState::Ok(37),
+            db_queue: Some(crate::db::SummaryQueueStats {
+                eligible_now: 0,
+                awaiting_quiet: 1,
+                empty: 2,
+                last_summary_at: Some("2026-11-23T09:07:10+00:00".to_string()),
+                last_snapshot_at: Some("2026-11-23T09:07:39+00:00".to_string()),
+            }),
             discovery: vec![DiscoverySource {
                 cli_source: "claude_code",
                 candidates: vec![dir.join(".claude/projects")],
@@ -885,7 +930,7 @@ mod tests {
         assert!(text.contains("All 6 expected prompt templates loadable"));
         assert!(text.contains("Database: 37 sessions indexed"));
         assert!(text.contains("claude_code: 12 sessions"));
-        assert!(text.contains("Total: 12 sessions discoverable"));
+        assert!(text.contains("Total: 12 transcript files discoverable"));
         assert!(text.contains("Everything looks good!"));
         // Sections appear in this exact order.
         let titles: Vec<&str> = report.sections.iter().map(|s| s.title.as_str()).collect();

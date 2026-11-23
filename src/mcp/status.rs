@@ -98,6 +98,7 @@ pub fn status(
     let needing_snapshot = db
         .get_sessions_needing_snapshot(Some(1000), true, None, false)?
         .len();
+    let queue = db.get_summary_queue_stats(crate::background::MIN_AGE_HOURS)?;
 
     let db_size_mb = match std::fs::metadata(&db_path) {
         Ok(meta) => json!(round2(meta.len() as f64 / (1024.0 * 1024.0))),
@@ -185,6 +186,16 @@ pub fn status(
             "with_snapshot": stats.with_snapshot,
             "needing_summary": needing_summary,
             "needing_snapshot": needing_snapshot,
+            // Queue standing: `eligible_now` is real backlog (quiet sessions
+            // the indexer has not reached); `awaiting_quiet` are inside the
+            // stability window; `empty` have nothing to summarize.
+            "summary_queue": {
+                "eligible_now": queue.eligible_now,
+                "awaiting_quiet": queue.awaiting_quiet,
+                "empty_sessions": queue.empty,
+                "last_summary_at": queue.last_summary_at,
+                "last_snapshot_at": queue.last_snapshot_at,
+            },
             "by_source": Value::Object(by_source),
         },
         "indexer": {

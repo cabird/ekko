@@ -28,6 +28,27 @@ pub struct ProjectRow {
     pub last_activity: Option<String>,
 }
 
+/// Result of [`Database::get_summary_queue_stats`]: how the LLM queue
+/// stands right now, for `ekko check` and `get_status`. Distinguishes the
+/// backlog that means "the indexer is behind" (`eligible_now`) from the
+/// normal steady state (`awaiting_quiet`, `empty`).
+#[derive(Debug, Clone, PartialEq, Eq, Default)]
+pub struct SummaryQueueStats {
+    /// Sessions the summarize queue would hand out right now: needing a
+    /// summary and quiet for at least the stability window. Nonzero for
+    /// long means the indexer is not keeping up.
+    pub eligible_now: i64,
+    /// Needing a summary but modified inside the stability window —
+    /// probably still being written. Normal steady state.
+    pub awaiting_quiet: i64,
+    /// Rows with no messages. Never summarized, by design.
+    pub empty: i64,
+    /// Most recent summary write (UTC ISO-8601), if any.
+    pub last_summary_at: Option<String>,
+    /// Most recent snapshot write (UTC ISO-8601), if any.
+    pub last_snapshot_at: Option<String>,
+}
+
 /// Result of [`Database::get_transcript_index_stats`].
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TranscriptIndexStats {
@@ -105,6 +126,53 @@ impl Database {
     }
 
     /// Statistics about the transcript FTS index.
+    /// Summary-queue standing (see [`SummaryQueueStats`]). The pending
+    /// predicate and the stability cutoff are the same shapes
+    /// [`Database::get_sessions_needing_summary_stable`] uses, so these
+    /// counts agree with what the queue would actually hand out.
+    pub fn get_summary_queue_stats(&self, min_age_hours: f64) -> DbResult<SummaryQueueStats> {
+        let conn = self.connection()?;
+        const PENDING: &str = "transcript_path != ''
+             AND message_count > 0
+             AND (
+                 summary IS NULL OR summary = ''
+                 OR (summary_at IS NOT NULL AND julianday(REPLACE(modified_at, 'T', ' '))
+                    > julianday(REPLACE(summary_at, 'T', ' ')))
+             )";
+        let cutoff = format!("-{} hours", super::float_str(min_age_hours));
+        let eligible_now: i64 = conn.query_row(
+            &format!(
+                "SELECT COUNT(*) FROM sessions WHERE {PENDING}
+                 AND REPLACE(modified_at, 'T', ' ') < datetime('now', ?)"
+            ),
+            params![cutoff],
+            |row| row.get(0),
+        )?;
+        let pending_total: i64 = conn.query_row(
+            &format!("SELECT COUNT(*) FROM sessions WHERE {PENDING}"),
+            [],
+            |row| row.get(0),
+        )?;
+        let empty: i64 = conn.query_row(
+            "SELECT COUNT(*) FROM sessions WHERE message_count <= 0",
+            [],
+            |row| row.get(0),
+        )?;
+        let (last_summary_at, last_snapshot_at): (Option<String>, Option<String>) = conn
+            .query_row(
+                "SELECT MAX(summary_at), MAX(snapshot_at) FROM sessions",
+                [],
+                |row| Ok((row.get(0)?, row.get(1)?)),
+            )?;
+        Ok(SummaryQueueStats {
+            eligible_now,
+            awaiting_quiet: pending_total - eligible_now,
+            empty,
+            last_summary_at,
+            last_snapshot_at,
+        })
+    }
+
     pub fn get_transcript_index_stats(&self) -> DbResult<TranscriptIndexStats> {
         let conn = self.connection()?;
         let indexed: i64 =

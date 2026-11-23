@@ -75,7 +75,7 @@ mod web;
 pub use events::{EVENT_CONTENT_CAP, EVENT_TOOL_INPUT_CAP, EVENT_TOOL_OUTPUT_CAP};
 pub use search::{KeywordHit, TranscriptHit};
 pub use sessions::{SessionFile, SessionRow};
-pub use stats::{DbStats, ProjectRow, TranscriptIndexStats};
+pub use stats::{DbStats, ProjectRow, SummaryQueueStats, TranscriptIndexStats};
 pub use telemetry::{
     CostBucket, CostStats, LlmUsage, OperationCost, OperationStats, TelemetryEvent,
     TelemetrySummary,

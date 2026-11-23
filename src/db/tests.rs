@@ -791,6 +791,37 @@ fn needing_summary_stable_min_age() {
 }
 
 #[test]
+fn summary_queue_stats_classify_backlog_quiet_and_empty() {
+    let t = test_db();
+    // Quiet and unsummarized: real backlog.
+    let mut old = make_session("q_old");
+    old.modified_at = Some(dt("2025-01-01T10:00:00+00:00"));
+    t.db.upsert_session(&old).unwrap();
+    // Fresh and unsummarized: awaiting the quiet window.
+    let mut fresh = make_session("q_fresh");
+    fresh.modified_at = Some(chrono::Utc::now().fixed_offset());
+    t.db.upsert_session(&fresh).unwrap();
+    // Empty: never summarized, by design.
+    let mut empty = make_session("q_empty");
+    empty.modified_at = Some(dt("2025-01-01T10:00:00+00:00"));
+    empty.message_count = 0;
+    t.db.upsert_session(&empty).unwrap();
+    // Summarized and quiet: not pending at all.
+    let mut done = make_session("q_done");
+    done.modified_at = Some(dt("2025-01-01T10:00:00+00:00"));
+    t.db.upsert_session(&done).unwrap();
+    t.db.update_summary_opt("q_done", Some("t"), Some("s")).unwrap();
+
+    let q = t.db.get_summary_queue_stats(1.0).unwrap();
+    assert_eq!(q.eligible_now, 1);
+    assert_eq!(q.awaiting_quiet, 1);
+    assert_eq!(q.empty, 1);
+    // update_summary_opt stamped summary_at just now.
+    assert!(q.last_summary_at.is_some());
+    assert!(q.last_snapshot_at.is_none());
+}
+
+#[test]
 fn needing_snapshot_basics() {
     let t = populated_db();
     assert_eq!(
