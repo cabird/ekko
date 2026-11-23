@@ -44,15 +44,57 @@ backend — an API key, or a logged-in Claude Code CLI; see [Configuration](#con
 Indexing is not exposed as a tool — it runs in the background and as `ekko index`. The
 browser UI is `ekko web` (below).
 
-## Build
+## Install
+
+Build from source with Rust 1.85+ (rustup.rs), straight from GitHub:
 
 ```bash
-cargo build --release       # target/release/ekko
-cargo test                  # ~600 tests, no network, no API keys needed
+cargo install --git https://github.com/cabird/ekko
 ```
 
-Rust 1.85+ (edition 2024). SQLite is bundled; TLS is rustls, so there is no OpenSSL
-dependency.
+or from a clone: `cargo install --path .`. Either way the binary lands at
+`~/.cargo/bin/ekko`. Run `ekko check` any time to verify the setup end to end.
+
+## MCP client config
+
+Claude Code:
+
+```bash
+claude mcp add --transport stdio --scope user ekko -- ekko mcp
+```
+
+or, in `~/.claude.json` (user scope) / `.mcp.json` (project scope):
+
+```json
+{
+  "mcpServers": {
+    "ekko": {
+      "type": "stdio",
+      "command": "/Users/you/.cargo/bin/ekko",
+      "args": ["mcp"]
+    }
+  }
+}
+```
+
+OpenAI Codex:
+
+```bash
+codex mcp add ekko -- ekko mcp
+```
+
+or, in `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.ekko]
+command = "ekko"
+args = ["mcp"]
+```
+
+VS Code Copilot uses the same shape as the Claude Code JSON under `"servers"` in
+`.vscode/mcp.json`; GitHub Copilot CLI uses `"mcpServers"` in
+`~/.copilot/mcp-config.json`. Use the full binary path (`~/.cargo/bin/ekko`) in any
+client that does not inherit your shell's `PATH`.
 
 ## Subcommands
 
@@ -152,31 +194,6 @@ has done. What it offers:
 Localhost only, no authentication — anyone who can reach the port can read the whole
 archive, the same trust model as the MCP server. `web_port` in `config.json` changes
 the default port.
-
-## MCP client config
-
-Claude Code:
-
-```bash
-claude mcp add --transport stdio --scope user ekko -- /path/to/ekko mcp
-```
-
-or, in `~/.claude.json` (user scope) / `.mcp.json` (project scope):
-
-```json
-{
-  "mcpServers": {
-    "ekko": {
-      "type": "stdio",
-      "command": "/path/to/target/release/ekko",
-      "args": ["mcp"]
-    }
-  }
-}
-```
-
-VS Code Copilot uses the same shape under `"servers"` in `.vscode/mcp.json`; GitHub
-Copilot CLI uses `"mcpServers"` in `~/.copilot/mcp-config.json`.
 
 ## Configuration
 
@@ -314,6 +331,16 @@ Transcripts themselves are only ever read, from the CLIs' own directories
 A background indexer starts 60 seconds after the server does, then rescans every 5
 minutes, picking up sessions idle for at least an hour. Run `ekko index` to do the same
 work immediately and in parallel.
+
+## Build
+
+```bash
+cargo build --release       # target/release/ekko
+cargo test                  # ~600 tests, no network, no API keys needed
+```
+
+Rust 1.85+ (edition 2024). SQLite is bundled; TLS is rustls, so there is no OpenSSL
+dependency.
 
 ## Architecture
 
