@@ -1,29 +1,31 @@
 {
   "_comment": "Copy to <data dir>/config.json (macOS: ~/Library/Application Support/ekko/, Linux: ~/.local/share/ekko/, Windows: %LOCALAPPDATA%\\ekko\\). Every key is optional; delete the ones you don't use. Keys starting with _ are ignored.",
 
-  "_comment_backends": "llm_backend picks how summaries and context snapshots are produced: 'api' (HTTP with one of the keys below) or 'claude-cli' (runs `claude -p` on your Claude Code subscription; slower per call, no key needed). Unset = auto: api if a key is present, else claude-cli if `claude` is on PATH.",
+  "_comment_setups": "Three common setups. (1) No API key at all: if you are logged in to Claude Code, an empty config {} works — ekko auto-detects `claude` on PATH and runs every LLM call through your subscription. (2) API key only: put a key under _comment_keys below and ekko uses HTTP. (3) Split (shown here): the background indexer summarizes on the subscription CLI for free, while interactive tools use a fast cheap API model. Keyword and transcript search, browsing and the web UI never need an LLM at all.",
+
+  "_comment_backends": "llm_backend picks how summaries and context snapshots are produced: 'claude-cli' (runs `claude -p` on your Claude Code subscription; no key needed, 15-60s per call) or 'api' (HTTP with one of the keys below). Unset = auto: api if a key is present, else claude-cli if `claude` is on PATH.",
   "llm_backend": "claude-cli",
   "llm_model": "sonnet",
   "llm_reasoning_effort": "low",
 
-  "_comment_query": "Interactive tools (ask_question, semantic/hybrid search) can use a different, faster backend than the background indexer. Both default to the llm_* settings above.",
+  "_comment_query": "Interactive tools (ask_question, semantic/hybrid search) can use a different, faster backend than the background indexer. Both default to the llm_* settings above. Without any backend, semantic search errors, hybrid runs as keyword, and everything else still works.",
   "query_backend": "api",
   "query_model": "gpt-5-mini",
 
-  "_comment_keys": "API keys for the 'api' backend. OpenAI-family models (gpt*, o*) go to OpenAI, or to Azure when AZURE_OPENAI_ENDPOINT is set (then llm_model/query_model must be an Azure deployment name). claude-* models go to Anthropic.",
+  "_comment_keys": "API keys for the 'api' backend; not needed for 'claude-cli'. OpenAI-family models (gpt*, o*) go to OpenAI, or to Azure when AZURE_OPENAI_ENDPOINT is set (then llm_model/query_model must be an Azure deployment name). claude-* models go to Anthropic.",
   "OPENAI_API_KEY": "sk-...",
   "ANTHROPIC_API_KEY": "sk-ant-...",
   "AZURE_OPENAI_API_KEY": "...",
   "AZURE_OPENAI_ENDPOINT": "https://myres.openai.azure.com",
 
-  "_comment_tuning": "max_workers caps concurrent LLM calls in `ekko index` (default 7 for api, 1 for claude-cli). cli_timeout_secs bounds one CLI completion. web_port is where `ekko web` listens on 127.0.0.1.",
+  "_comment_tuning": "max_workers caps concurrent LLM calls in `ekko index` (default 7 for api, 1 for claude-cli; an explicit value applies to both). cli_timeout_secs bounds one CLI completion. web_port is where `ekko web` listens on 127.0.0.1.",
   "max_workers": 7,
   "cli_timeout_secs": 600,
   "web_port": 3556,
   "_comment_web": "web_serve: true makes every `ekko mcp` race to host the web UI on web_port (exactly one serves at a time). Off by default; `ekko web` runs it standalone.",
   "web_serve": false,
 
-  "_comment_paths": "database_path relocates sessions.db; session_paths overrides transcript discovery per source.",
+  "_comment_paths": "database_path relocates sessions.db; session_paths overrides transcript discovery per source (an explicitly listed source scans only its listed directories; [] disables it).",
   "database_path": null,
   "session_paths": null
 }

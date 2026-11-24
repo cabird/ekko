@@ -44,6 +44,27 @@ backend — an API key, or a logged-in Claude Code CLI; see [Configuration](#con
 Indexing is not exposed as a tool — it runs in the background and as `ekko index`. The
 browser UI is `ekko web` (below).
 
+### Searching
+
+Every bound combines with every other: query, directory (with or without
+subdirectories), a date range (`days` or `start_date`/`end_date`), mode and limit.
+For example, "any session mentioning foo, in this project, from Oct 6 to Nov 1":
+
+```json
+search_sessions({ "query": "foo", "directory": "/Users/me/proj",
+                  "start_date": "2026-10-06", "end_date": "2026-11-01" })
+```
+
+The default `keyword` mode and the `transcript` mode are plain SQLite full-text
+queries — instant and free, so several bounded searches cost nothing. `hybrid`
+escalates keyword → transcript → semantic and only reaches the LLM when the free
+tiers find nothing; `semantic` goes straight to the LLM for concept matching when
+the words you have won't appear in the session.
+
+Without any LLM backend configured: `keyword` and `transcript` work, `hybrid` runs
+as `keyword`, `semantic` returns an error, and `ask_question` explains what to set
+up. Nothing silently produces a fake answer.
+
 ## Install
 
 Build from source with Rust 1.85+ (rustup.rs), straight from GitHub:
@@ -146,6 +167,8 @@ the usual log lines to `indexer.log` in the data directory. The closing line rep
 time and total LLM calls, tokens and cost.
 
 ## Web UI
+
+![The ekko web UI: filtered session list, with one session's context snapshot open](docs/images/web-ui.jpg)
 
 ```
 ekko web            # http://127.0.0.1:3556/

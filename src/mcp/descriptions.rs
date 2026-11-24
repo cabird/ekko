@@ -68,6 +68,8 @@ Args:
           sessions by meaning even when exact words don't match. Takes 2-5 sec.
         - "hybrid": Cascades keyword → transcript → semantic until results found.
           Best recall, but may use LLM if earlier tiers return nothing.
+        Without a configured LLM backend, "semantic" returns an error and
+        "hybrid" runs as "keyword"; the FAST modes always work.
     limit: Maximum results (default 20)
 
 Returns:
@@ -77,12 +79,19 @@ Returns:
     - suggestions: Similar paths if directory filter returns empty
 
 Workflow:
-    1. Use search_sessions(query, mode="hybrid") to find relevant sessions
-    2. Use read_transcript(session_id, mode="grep", pattern=...) for line-level details
+    1. Start with the FAST modes, bounded: keyword (or transcript for exact
+       text), narrowed with directory and days/start_date/end_date. These are
+       instant SQLite queries — several cheap bounded searches beat one broad
+       one. All bounds combine: query + directory + date range + mode.
+    2. Escalate to mode="hybrid" when the FAST modes find nothing, or
+       mode="semantic" when the words you have won't appear in the session
+       (concept matching, costs an LLM call).
+    3. Use read_transcript(session_id, mode="grep", pattern=...) for line-level details.
 
 Examples:
-    - search_sessions("authentication", mode="hybrid") - find sessions about auth
+    - search_sessions("foo", directory="/Users/me/proj", start_date="2026-10-06", end_date="2026-11-01") - bounded keyword
     - search_sessions("INSERT OR REPLACE", mode="transcript") - find exact SQL text
+    - search_sessions("authentication", mode="hybrid") - escalate after FAST modes miss
     - search_sessions("how to deploy", mode="semantic") - conceptual search
     - search_sessions("auth", start_date="2026-02-01", end_date="2026-02-28") - Feb only"#;
 
