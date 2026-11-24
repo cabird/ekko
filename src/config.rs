@@ -94,8 +94,7 @@ pub struct Config {
     pub web_port: u16,
     /// Host the web UI from inside `ekko mcp`: each MCP
     /// instance races for the port once a minute and exactly one serves.
-    /// Off by default — an HTTP server inside every AI-tool launch is a
-    /// choice the user should make.
+    /// On by default (localhost only); `"web_serve": false` turns it off.
     pub web_serve: bool,
     pub max_workers: usize,
     /// True when `max_workers` was set explicitly. CLI backends default to a
@@ -121,7 +120,7 @@ impl Default for Config {
             query_model: None,
             cli_timeout_secs: DEFAULT_CLI_TIMEOUT_SECS,
             web_port: DEFAULT_WEB_PORT,
-            web_serve: false,
+            web_serve: true,
             max_workers: DEFAULT_MAX_WORKERS,
             max_workers_explicit: false,
             max_sessions: DEFAULT_MAX_SESSIONS,

@@ -22,8 +22,8 @@
   "max_workers": 7,
   "cli_timeout_secs": 600,
   "web_port": 3556,
-  "_comment_web": "web_serve: true makes every `ekko mcp` race to host the web UI on web_port (exactly one serves at a time). Off by default; `ekko web` runs it standalone.",
-  "web_serve": false,
+  "_comment_web": "web_serve: every `ekko mcp` races to host the web UI on web_port (exactly one serves at a time, localhost only). On by default; set false to disable, or run `ekko web` standalone.",
+  "web_serve": true,
 
   "_comment_paths": "database_path relocates sessions.db; session_paths overrides transcript discovery per source (an explicitly listed source scans only its listed directories; [] disables it).",
   "database_path": null,
