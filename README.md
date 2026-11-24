@@ -28,78 +28,20 @@ human-side.
 
 Nine tools, marked `[FAST]` (a SQLite query — instant) or `[LLM]` (needs a completion
 backend — an API key, or a logged-in Claude Code CLI; see [Configuration](#configuration)).
-Optional arguments show their default in parentheses.
 
-### `recent_activity` — `[FAST]`
+| Tool | What it does |
+|---|---|
+| `recent_activity` | `[FAST]` Recent sessions with titles, summaries and key files |
+| `search_sessions` | `[FAST]`, `[LLM]` for semantic/hybrid. Find sessions by query, directory and date range |
+| `get_session_snapshot` | `[FAST]` One session's decisions, commands, architecture and files |
+| `read_transcript` | `[FAST]` Full transcript access: `info`, `head`, `tail`, `lines`, `grep`, `full`, `save` |
+| `ask_question` | `[LLM]` Natural-language Q&A from summaries, falling back to transcripts, with cited sessions |
+| `list_projects` | `[FAST]` Projects with session counts and last-activity times |
+| `sessions_in_directory` | `[FAST]` Sessions recorded in (or under) a directory |
+| `get_status` | `[FAST]` Index counts, summary-queue standing, LLM config, token costs |
+| `export_telemetry` | `[FAST]` Dump the telemetry table as JSONL under `<data dir>/exports/` |
 
-The "what was I working on?" tool: recent sessions, newest first, with titles,
-summaries and key files.
-
-- `directory` — scope to sessions in/under this directory
-- `include_subdirs` (true), `days` (7), `max_sessions` (10)
-
-### `search_sessions` — `[FAST]`, `[LLM]` for semantic/hybrid
-
-Find the sessions matching a query, across the whole archive. Returns sessions,
-not line-level matches; follow up with `read_transcript` for those. See
-[Searching](#searching) for how the modes behave and combine.
-
-- `query` — required; whole words, implicitly ANDed, prefix matching with `*`
-- `mode` ("keyword") — `keyword`, `transcript`, `semantic` or `hybrid`
-- `directory`, `include_subdirs` (true)
-- `days`, or `start_date` / `end_date` (ISO dates, inclusive; dates win over `days`)
-- `limit` (20)
-
-### `get_session_snapshot` — `[FAST]`
-
-The stored context snapshot for one session: decisions and rationale, commands run,
-architecture, files touched, gotchas — enough to resume where it left off.
-
-- `session_id` — required, from search results or `recent_activity`
-
-### `read_transcript` — `[FAST]`
-
-Direct access to one session's full transcript.
-
-- `session_id` — required
-- `mode` ("info") — `info` (size/count overview), `head`, `tail`, `lines`, `grep`,
-  `full`, or `save` (write to `<data dir>/exports/`)
-- `count` (5) — messages for `head`/`tail`
-- `start`, `end` — line range for `lines`, 1-based inclusive
-- `pattern` — text for `grep`, case-insensitive; `context_lines` (3), `max_matches` (20)
-- `include_tools` (true) — include tool-call messages
-- `output_path` — relative filename for `save`
-
-### `ask_question` — `[LLM]`
-
-Natural-language Q&A over the archive: answers from session summaries first, reads
-full transcripts when the summaries aren't enough, and cites the sessions it used.
-
-- `question` — required
-- `directory`, `include_subdirs` (true), `days`
-- `max_sessions` (7) — transcripts to read at most; `offset` (0) — pagination
-
-### `sessions_in_directory` — `[FAST]`
-
-Sessions recorded in (or under) a directory, newest first.
-
-- `directory` — required
-- `include_subdirs` (true), `days`, `limit` (50)
-
-### `list_projects` — `[FAST]`
-
-Every project with session counts and last-activity times. No arguments.
-
-### `get_status` — `[FAST]`
-
-Index counts, summary-queue standing and last-summary time, indexer state, LLM
-configuration, web UI location, token costs. No arguments.
-
-### `export_telemetry` — `[FAST]`
-
-Dump the telemetry table as JSONL under `<data dir>/exports/`.
-
-- `filename` — required, relative; `.jsonl` added if missing
+Every tool's arguments and defaults are in the [Tool reference](#tool-reference).
 
 Indexing is not exposed as a tool — it runs in the background and as `ekko index`. The
 browser UI is `ekko web` (below).
@@ -414,6 +356,81 @@ Transcripts themselves are only ever read, from the CLIs' own directories
 A background indexer starts 60 seconds after the server does, then rescans every 5
 minutes, picking up sessions idle for at least an hour. Run `ekko index` to do the same
 work immediately and in parallel.
+
+## Tool reference
+
+Optional arguments show their default in parentheses.
+
+### `recent_activity` — `[FAST]`
+
+The "what was I working on?" tool: recent sessions, newest first, with titles,
+summaries and key files.
+
+- `directory` — scope to sessions in/under this directory
+- `include_subdirs` (true), `days` (7), `max_sessions` (10)
+
+### `search_sessions` — `[FAST]`, `[LLM]` for semantic/hybrid
+
+Find the sessions matching a query, across the whole archive. Returns sessions,
+not line-level matches; follow up with `read_transcript` for those. See
+[Searching](#searching) for how the modes behave and combine.
+
+- `query` — required; whole words, implicitly ANDed, prefix matching with `*`
+- `mode` ("keyword") — `keyword`, `transcript`, `semantic` or `hybrid`
+- `directory`, `include_subdirs` (true)
+- `days`, or `start_date` / `end_date` (ISO dates, inclusive; dates win over `days`)
+- `limit` (20)
+
+### `get_session_snapshot` — `[FAST]`
+
+The stored context snapshot for one session: decisions and rationale, commands run,
+architecture, files touched, gotchas — enough to resume where it left off.
+
+- `session_id` — required, from search results or `recent_activity`
+
+### `read_transcript` — `[FAST]`
+
+Direct access to one session's full transcript.
+
+- `session_id` — required
+- `mode` ("info") — `info` (size/count overview), `head`, `tail`, `lines`, `grep`,
+  `full`, or `save` (write to `<data dir>/exports/`)
+- `count` (5) — messages for `head`/`tail`
+- `start`, `end` — line range for `lines`, 1-based inclusive
+- `pattern` — text for `grep`, case-insensitive; `context_lines` (3), `max_matches` (20)
+- `include_tools` (true) — include tool-call messages
+- `output_path` — relative filename for `save`
+
+### `ask_question` — `[LLM]`
+
+Natural-language Q&A over the archive: answers from session summaries first, reads
+full transcripts when the summaries aren't enough, and cites the sessions it used.
+
+- `question` — required
+- `directory`, `include_subdirs` (true), `days`
+- `max_sessions` (7) — transcripts to read at most; `offset` (0) — pagination
+
+### `sessions_in_directory` — `[FAST]`
+
+Sessions recorded in (or under) a directory, newest first.
+
+- `directory` — required
+- `include_subdirs` (true), `days`, `limit` (50)
+
+### `list_projects` — `[FAST]`
+
+Every project with session counts and last-activity times. No arguments.
+
+### `get_status` — `[FAST]`
+
+Index counts, summary-queue standing and last-summary time, indexer state, LLM
+configuration, web UI location, token costs. No arguments.
+
+### `export_telemetry` — `[FAST]`
+
+Dump the telemetry table as JSONL under `<data dir>/exports/`.
+
+- `filename` — required, relative; `.jsonl` added if missing
 
 ## Build
 
