@@ -427,6 +427,10 @@ dependency.
 
 ## Architecture
 
+The full reference, with diagrams of the indexing pipeline, data model and
+Q&A flow, is [docs/architecture/ARCHITECTURE.md](docs/architecture/ARCHITECTURE.md).
+Module map:
+
 | Module | Purpose |
 |---|---|
 | `main.rs` | clap CLI — `mcp` (default), `check` and `index` |
