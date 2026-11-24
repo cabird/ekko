@@ -48,24 +48,18 @@ flowchart LR
   end
 
   subgraph IDX["Indexing"]
-    BG["background.rs
-slow loop in ekko mcp"]
-    FI["fastindex.rs
-ekko index, parallel"]
-    IN["indexer.rs
-scan / FTS / keywords"]
-    SUM["summarize.rs + snapshot.rs
-map-reduce over 200K chunks"]
+    BG["background.rs<br/>slow loop in ekko mcp"]
+    FI["fastindex.rs<br/>ekko index, parallel"]
+    IN["indexer.rs<br/>scan / FTS / keywords"]
+    SUM["summarize.rs + snapshot.rs<br/>map-reduce over 200K chunks"]
   end
 
-  DB[("SQLite sessions.db
-WAL, connection-per-call")]
+  DB[("SQLite sessions.db<br/>WAL, connection-per-call")]
 
   subgraph SERVE["Serving"]
     MEM["memory/ EkkoMemory"]
     MCP["mcp/ EkkoServer — 9 tools, stdio"]
-    WEB["web/ Axum router + embedded SPA
-127.0.0.1:3556"]
+    WEB["web/ Axum router + embedded SPA<br/>127.0.0.1:3556"]
   end
 
   subgraph LLMBOX["llm.rs backends"]
@@ -200,24 +194,12 @@ All timestamps are TEXT in ISO 8601 shape (`YYYY-MM-DDTHH:MM:SS[.ffffff]±HH:MM`
 ```mermaid
 
 flowchart TD
-  A["scan_all — walk every source dir,
-parse metadata, skip sdk-cli,
-store capped events if changed,
-upsert sessions + session_files"] --> B["index_transcripts_fts —
-render conversation, write transcripts_fts
-(needs: modified_at newer than transcript_indexed_at)"]
-  B --> C["index_keywords — regex identifier
-extraction into sessions.keywords
-(re-reads every transcript, every run)"]
-  C --> D{"LLM backend available
-for Role::Index?"}
+  A["scan_all — walk every source dir,<br/>parse metadata, skip sdk-cli,<br/>store capped events if changed,<br/>upsert sessions + session_files"] --> B["index_transcripts_fts —<br/>render conversation, write transcripts_fts<br/>(needs: modified_at newer than transcript_indexed_at)"]
+  B --> C["index_keywords — regex identifier<br/>extraction into sessions.keywords<br/>(re-reads every transcript, every run)"]
+  C --> D{"LLM backend available<br/>for Role::Index?"}
   D -- no --> Z["stop — FAST layer is complete"]
-  D -- yes --> E["summaries — claim, parse, summarize.rs,
-update_summary_opt, release
-(needs: no summary, or modified_at newer than summary_at;
-AND stable for 1h)"]
-  E --> F["snapshots — same claim path, snapshot.rs
-(needs summary present; stable for 1h)"]
+  D -- yes --> E["summaries — claim, parse, summarize.rs,<br/>update_summary_opt, release<br/>(needs: no summary, or modified_at newer than summary_at;<br/>AND stable for 1h)"]
+  E --> F["snapshots — same claim path, snapshot.rs<br/>(needs summary present; stable for 1h)"]
   F --> G["cleanup_expired_claims"]
 
 ```
@@ -256,27 +238,16 @@ Summaries and snapshots only touch sessions whose transcript has been unmodified
 ```mermaid
 
 flowchart TD
-  S["resolve_backend(config, role)"] --> Q{"role == Query and
-query_backend set?"}
-  Q -- yes --> QB["use query_backend + query_model
-(pick_model swaps a model the
-backend cannot serve)"]
-  Q -- no --> EB{"llm_backend set explicitly?
-(config.json or EKKO_BACKEND)"}
-  EB -- "api" --> API["Backend::Api
-model = llm_model (default gpt-5-mini)"]
-  EB -- "claude-cli" --> CLI["Backend::Cli(Claude)
-model = llm_model, or 'sonnet' default;
-OpenAI-family names replaced by 'sonnet'"]
-  EB -- unset --> K{"API key present for
-llm_model's provider?
-(Azure key when endpoint set)"}
+  S["resolve_backend(config, role)"] --> Q{"role == Query and<br/>query_backend set?"}
+  Q -- yes --> QB["use query_backend + query_model<br/>(pick_model swaps a model the<br/>backend cannot serve)"]
+  Q -- no --> EB{"llm_backend set explicitly?<br/>(config.json or EKKO_BACKEND)"}
+  EB -- "api" --> API["Backend::Api<br/>model = llm_model (default gpt-5-mini)"]
+  EB -- "claude-cli" --> CLI["Backend::Cli(Claude)<br/>model = llm_model, or 'sonnet' default;<br/>OpenAI-family names replaced by 'sonnet'"]
+  EB -- unset --> K{"API key present for<br/>llm_model's provider?<br/>(Azure key when endpoint set)"}
   K -- yes --> API
   K -- no --> P{"claude binary on PATH?"}
   P -- yes --> CLI
-  P -- no --> FALL["Backend::Api anyway —
-so the 'set OPENAI_API_KEY'
-guidance appears"]
+  P -- no --> FALL["Backend::Api anyway —<br/>so the 'set OPENAI_API_KEY'<br/>guidance appears"]
 
 ```
 
@@ -309,26 +280,17 @@ Attempts3 (`DEFAULT_MAX_RETRIES`); JSON re-ask adds up to 2 more full calls with
 ```mermaid
 
 flowchart TD
-  M{"mode"} -->|keyword| KW["FTS over sessions_fts
-(title, first_prompt, summary,
-tool_timeline, keywords), bm25"]
-  M -->|transcript| TR["FTS over transcripts_fts,
-snippet excerpts"]
-  M -->|semantic| SEM["LLM judges all summarized sessions
-via semantic_search prompt;
-keyword fallback when fewer than 3 hits"]
+  M{"mode"} -->|keyword| KW["FTS over sessions_fts<br/>(title, first_prompt, summary,<br/>tool_timeline, keywords), bm25"]
+  M -->|transcript| TR["FTS over transcripts_fts,<br/>snippet excerpts"]
+  M -->|semantic| SEM["LLM judges all summarized sessions<br/>via semantic_search prompt;<br/>keyword fallback when fewer than 3 hits"]
   M -->|hybrid| H1["Tier 1: keyword"]
   H1 --> H2{"5 or more hits?"}
   H2 -- no --> T2["Tier 2: transcript FTS"]
   T2 --> H3{"5 or more hits?"}
-  H3 -- no --> T3["Tier 3: semantic
-(note: directory/date filters NOT
-applied to this tier)"]
+  H3 -- no --> T3["Tier 3: semantic<br/>(note: directory/date filters NOT<br/>applied to this tier)"]
   H2 -- yes --> RR
   H3 -- yes --> RR
-  T3 --> RR["dedupe by session_id, rerank
-summary then transcript then semantic,
-then by recency; truncate to limit"]
+  T3 --> RR["dedupe by session_id, rerank<br/>summary then transcript then semantic,<br/>then by recency; truncate to limit"]
 
 ```
 
@@ -373,8 +335,7 @@ sequenceDiagram
   participant DB as SQLite
   participant LLM as Role::Index backend
 
-  Note over L: 60s after server launch, then loop.
-Scan pass only when 300s have elapsed.
+  Note over L: 60s after server launch, then loop.<br/>Scan pass only when 300s have elapsed.
   L->>FS: discover transcripts (all 3 sources)
   loop each transcript
     L->>P: extract_metadata
@@ -407,12 +368,10 @@ Scan pass only when 300s have elapsed.
       end
     end
     L->>DB: get_sessions_needing_snapshot(stable, has summary, limit 10)
-    Note over L,LLM: same claim - LLM - write - release path,
-claim key prefixed "snapshot:"
+    Note over L,LLM: same claim - LLM - write - release path,<br/>claim key prefixed "snapshot:"
     L->>DB: cleanup_expired_claims
   end
-  Note over L: work done? loop again now : sleep 300s.
-Escaped DB error: log + 60s back-off.
+  Note over L: work done? loop again now : sleep 300s.<br/>Escaped DB error: log + 60s back-off.
 
 ```
 
@@ -434,10 +393,8 @@ sequenceDiagram
   S->>S: check_backend_available(Query) — else in-band error
   S->>M: ask_question
   M->>DB: get_sessions_with_summaries
-  M->>M: filter (dir/days), sort_by_priority,
-paginate offset..offset+100
-  Note over M: Tier 1 — pack_summaries: 100K token budget,
-oversized summaries skipped, [[S_XX00]] tags
+  M->>M: filter (dir/days), sort_by_priority,<br/>paginate offset..offset+100
+  Note over M: Tier 1 — pack_summaries: 100K token budget,<br/>oversized summaries skipped, [[S_XX00]] tags
   M->>LLM: qa_from_summaries (call_llm_json, per-call tracker)
   alt answered: true
     LLM-->>M: answer + source tags
@@ -480,23 +437,15 @@ sequenceDiagram
 
   K->>K: prepare_messages — escape special tokens
   K->>B: complete(messages)
-  B->>B: render_prompt (single user msg verbatim,
-re-ask turns inlined as text)
-  B->>CL: spawn claude -p --no-session-persistence
---tools "" --output-format json --model sonnet
-[--effort low], cwd = data-dir/cli-workdir
-  Note over CL: empty workdir: no CLAUDE.md, no MCP servers —
-no transcript persisted, so ekko never indexes itself
-  B->>CL: prompt on stdin (own task — no deadlock
-if it answers before draining)
+  B->>B: render_prompt (single user msg verbatim,<br/>re-ask turns inlined as text)
+  B->>CL: spawn claude -p --no-session-persistence<br/>--tools "" --output-format json --model sonnet<br/>[--effort low], cwd = data-dir/cli-workdir
+  Note over CL: empty workdir: no CLAUDE.md, no MCP servers —<br/>no transcript persisted, so ekko never indexes itself
+  B->>CL: prompt on stdin (own task — no deadlock<br/>if it answers before draining)
   alt within cli_timeout_secs (600s)
     CL-->>B: JSON envelope on stdout
-    B->>B: parse: is_error, result, structured_output?,
-usage (cache tokens folded into prompt), total_cost_usd
+    B->>B: parse: is_error, result, structured_output?,<br/>usage (cache tokens folded into prompt), total_cost_usd
     alt is_error / non-zero exit
-      B-->>K: "Not logged in" → NotConfigured (no retry)
-"rate/usage limit" → Http 429
-other → Http status None
+      B-->>K: "Not logged in" → NotConfigured (no retry)<br/>"rate/usage limit" → Http 429<br/>other → Http status None
     else clean envelope
       B-->>K: content + usage + notional cost
       K->>K: record_with_cost — CLI's cost wins over pricing table
@@ -505,8 +454,7 @@ other → Http status None
     B-->>K: Timeout (kill_on_drop reaps the child)
   end
   opt retryable error, attempts remain (max 3)
-    Note over K: 429 → flat 60s wait (sit out the window) —
-transient → 1s, 2s, 4s… cap 60s
+    Note over K: 429 → flat 60s wait (sit out the window) —<br/>transient → 1s, 2s, 4s… cap 60s
     K->>B: retry complete(messages)
   end
 
@@ -541,8 +489,7 @@ sequenceDiagram
         W->>DB: get_events
         W-->>BR: 200 — same single rendering path
       else file gone
-        W-->>BR: 404 "not in the archive and the file
-is no longer on disk"
+        W-->>BR: 404 "not in the archive and the file<br/>is no longer on disk"
       end
     end
   end
